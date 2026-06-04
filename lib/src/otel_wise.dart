@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_wise_suppression.dart';
 
@@ -56,54 +55,70 @@ Future<T> tracedWise<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_wise');
   final span = t.startSpan('wise $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'wise');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'wise')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.profileId != null) {
-        span.setStringAttribute('wise.profile.id', res.profileId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('wise.profile.id', res.profileId!)]));
       }
       if (res.quoteId != null) {
-        span.setStringAttribute('wise.quote.id', res.quoteId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('wise.quote.id', res.quoteId!)]));
       }
       if (res.transferId != null) {
-        span.setStringAttribute('wise.transfer.id', res.transferId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('wise.transfer.id', res.transferId!)]));
       }
       if (res.recipientId != null) {
-        span.setStringAttribute('wise.recipient.id', res.recipientId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('wise.recipient.id', res.recipientId!)]));
       }
       if (res.sourceCurrency != null) {
-        span.setStringAttribute('wise.source.currency', res.sourceCurrency!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('wise.source.currency', res.sourceCurrency!)
+        ]));
       }
       if (res.targetCurrency != null) {
-        span.setStringAttribute('wise.target.currency', res.targetCurrency!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('wise.target.currency', res.targetCurrency!)
+        ]));
       }
       if (res.sourceAmount != null) {
-        span.setDoubleAttribute('wise.source.amount', res.sourceAmount!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeDouble('wise.source.amount', res.sourceAmount!)]));
       }
       if (res.targetAmount != null) {
-        span.setDoubleAttribute('wise.target.amount', res.targetAmount!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeDouble('wise.target.amount', res.targetAmount!)]));
       }
       if (res.rate != null) {
-        span.setDoubleAttribute('wise.rate', res.rate!);
+        span.addAttributes(
+            OTel.attributes([OTel.attributeDouble('wise.rate', res.rate!)]));
       }
       if (res.status != null) {
-        span.setStringAttribute('wise.status', res.status!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('wise.status', res.status!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('wise.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('wise.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'wise.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'wise.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
